@@ -1,5 +1,5 @@
 import fme, fmeobjects
-from fmehougeo import utils
+from lib import utils
 
 '''
 This class is intended to be inserted into the FME PythonCaller transformer - it will not
