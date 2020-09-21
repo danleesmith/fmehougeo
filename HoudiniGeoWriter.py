@@ -1,5 +1,32 @@
-import fme, fmeobjects
-from lib import utils
+# --------------------------------------------------------------------------
+# Imports
+# --------------------------------------------------------------------------
+
+import fme, fmeobjects, os
+
+'''
+Get the folder location of the fmehougeo python library using an FME published parameter
+This published parameter macro will only work in the FME PythonCaller
+'''
+
+lib_dir = fme.macroValues["HoudiniGeoWriter_PythonLib"]
+
+'''
+The following routine will import the required libraries from the python files in the
+fmehougeo library folder. The standard 'import from xx' function does not seem to work
+in the FME python context therefore the importlib library is used.
+'''
+
+import importlib.util
+
+# Import the fmehougeo utils.py modules
+spec = importlib.util.spec_from_file_location("utils", os.path.join(lib_dir, "utils.py"))
+utils = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(utils)
+
+# --------------------------------------------------------------------------
+# Python Caller Classes
+# --------------------------------------------------------------------------
 
 '''
 This class is intended to be inserted into the FME PythonCaller transformer - it will not

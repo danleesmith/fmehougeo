@@ -1,6 +1,30 @@
-import fme, fmeobjects, json
-from fmehougeo import attrib as ha
-from fmehougeo import geo as hg
+# --------------------------------------------------------------------------
+# Imports
+# --------------------------------------------------------------------------
+
+import fme, fmeobjects, json, os
+
+'''
+The following routine will import the required libraries from the python files in the
+fmehougeo library folder. The standard 'import from xx' function does not seem to work
+in the FME python context therefore the importlib library is used.
+'''
+
+import importlib.util
+
+# Get the directory path of this python file
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Import the fmehougeo attrib.py modules
+attrib_spec = importlib.util.spec_from_file_location("attrib", os.path.join(script_dir, "attrib.py"))
+attrib = importlib.util.module_from_spec(attrib_spec)
+attrib_spec.loader.exec_module(attrib)
+
+# Import the fmehougeo geo.py modules
+geo_spec = importlib.util.spec_from_file_location("geo", os.path.join(script_dir, "geo.py"))
+geo = importlib.util.module_from_spec(geo_spec)
+geo_spec.loader.exec_module(geo)
+
 
 # --------------------------------------------------------------------------
 # Vector Functions
@@ -84,15 +108,15 @@ def createHouAttribs(feature, scope):
 
 			if atype in [2,3,4,5,6,7,13,14]: # Value is an integer
 
-				attribs.append(ha.HouAttribute(aname, scope, "int", 0))
+				attribs.append(attrib.HouAttribute(aname, scope, "int", 0))
 
 			elif atype in [8,9,10]: # Value is a float
 
-				attribs.append(ha.HouAttribute(aname, scope, "float", 0.0))
+				attribs.append(attrib.HouAttribute(aname, scope, "float", 0.0))
 
 			elif atype in [11,12]: # Value is a string
 
-				attribs.append(ha.HouAttribute(aname, scope, "string", ""))
+				attribs.append(attrib.HouAttribute(aname, scope, "string", ""))
 
 	return attribs
 
@@ -271,7 +295,7 @@ def processFMESurface(feature):
 			points.append(swizzleYZ(point.getXYZ()))
 
 		# Create Houdini .geo string
-		hougeo = hg.HouGeo(bounds)
+		hougeo = geo.HouGeo(bounds)
 		hougeo.setPoints(points)
 		hougeo.setIndices(indices)
 		hougeo.setPrimitives("face", nfaces, sum(nverts), rle)
@@ -323,7 +347,7 @@ def processFMEPoints(features, centroid, offset, bounds):
 		point_attribs = writeHouAttribs(npoints, feature, point_attribs)
 
 	# Create Houdini .geo string
-	hougeo = hg.HouGeo(bounds)
+	hougeo = geo.HouGeo(bounds)
 	hougeo.setPoints(points)
 	hougeo.setSpatialRef(centroid, cs=feature.getCoordSys())
 
@@ -383,7 +407,7 @@ def processFMELines(features, centroid, offset, bounds):
 		prim_attribs = writeHouAttribs(nprims, feature, prim_attribs)
 
 	# Create Houdini .geo string
-	hougeo = hg.HouGeo(bounds)
+	hougeo = geo.HouGeo(bounds)
 	hougeo.setPoints(points)
 	hougeo.setIndices([i for i in range(len(points))])
 	hougeo.setPrimitives("open", nprims, len(points), prim_run)
@@ -450,7 +474,7 @@ def processFMEAreas(features, centroid, offset, bounds):
 		prim_attribs = writeHouAttribs(nprims, feature, prim_attribs)
 
 	# Create Houdini .geo string
-	hougeo = hg.HouGeo(bounds)
+	hougeo = geo.HouGeo(bounds)
 	hougeo.setPoints(points)
 	hougeo.setIndices([i for i in range(len(points))])
 	hougeo.setPrimitives("closed", nprims, len(points), prim_run)

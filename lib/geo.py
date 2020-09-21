@@ -1,5 +1,28 @@
-import json, collections, datetime, socket
-from fmehougeo import attrib as ha
+# --------------------------------------------------------------------------
+# Imports
+# --------------------------------------------------------------------------
+
+import json, collections, datetime, socket, os
+
+'''
+The following routine will import the required libraries from the python files in the
+fmehougeo library folder. The standard 'import from xx' function does not seem to work
+in the FME python context therefore the importlib library is used.
+'''
+
+import importlib.util
+
+# Get the directory path of this python file
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Import the fmehougeo attrib.py modules
+attrib_spec = importlib.util.spec_from_file_location("attrib", os.path.join(script_dir, "attrib.py"))
+attrib = importlib.util.module_from_spec(attrib_spec)
+attrib_spec.loader.exec_module(attrib)
+
+# --------------------------------------------------------------------------
+# Classes
+# --------------------------------------------------------------------------
 
 '''
 This class creates a structured json string that matches the Houdini .geo specification.
@@ -36,7 +59,7 @@ class HouGeo(object):
 
 	def setPoints(self, points):
 
-		p_attrib = ha.HouAttribute("P", "point", "vec3float", points, special="ppos")
+		p_attrib = attrib.HouAttribute("P", "point", "vec3float", points, special="ppos")
 		self.pt_attribs.append(p_attrib.getJSON())
 		self.pt_count = len(points)
 
@@ -168,16 +191,16 @@ class HouGeo(object):
 		if len(centroid) == 2:
 			centroid.append(0.0)
 
-		cs_attrib = ha.HouAttribute("sr_cs", "global", "string", cs)
+		cs_attrib = attrib.HouAttribute("sr_cs", "global", "string", cs)
 		self.global_attribs.append(cs_attrib.getJSON())
 
-		x_attrib = ha.HouAttribute("sr_cent_x", "global", "float", centroid[0])
+		x_attrib = attrib.HouAttribute("sr_cent_x", "global", "float", centroid[0])
 		self.global_attribs.append(x_attrib.getJSON())
 
-		y_attrib = ha.HouAttribute("sr_cent_y", "global", "float", centroid[2])
+		y_attrib = attrib.HouAttribute("sr_cent_y", "global", "float", centroid[2])
 		self.global_attribs.append(y_attrib.getJSON())
 
-		z_attrib = ha.HouAttribute("sr_cent_z", "global", "float", centroid[1])
+		z_attrib = attrib.HouAttribute("sr_cent_z", "global", "float", centroid[1])
 		self.global_attribs.append(z_attrib.getJSON())
 
 	# ----------------------------------------
